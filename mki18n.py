@@ -2,13 +2,13 @@
 from StringIO import StringIO
 import urllib2, os, zipfile, pycurl
 
-crowdin_project_api_key = ''
-
-crowdin_project_identifier = 'electrum-client'
+crowdin_identifier = 'electrum-client'
 crowdin_file_name = 'electrum.po'
 locale_file_name = 'locale/messages.pot'
 
-if crowdin_project_api_key:
+if os.path.exists('build/crowdin_api_key.txt'):
+    crowdin_api_key = open('build/crowdin_api_key.txt').read()
+
     # Generate fresh translation template
     if not os.path.exists('locale'):
       os.mkdir('locale')
@@ -19,7 +19,7 @@ if crowdin_project_api_key:
 
     # Push to Crowdin
     print 'Push to Crowdin'
-    url = ('http://api.crowdin.net/api/project/' + crowdin_project_identifier + '/update-file?key=' + crowdin_project_api_key)
+    url = ('http://api.crowdin.net/api/project/' + crowdin_identifier + '/update-file?key=' + crowdin_api_key)
 
     c = pycurl.Curl()
     c.setopt(c.URL, url)
@@ -30,11 +30,12 @@ if crowdin_project_api_key:
 
     # Build translations
     print 'Build translations'
-    response = urllib2.urlopen('http://api.crowdin.net/api/project/' + crowdin_project_identifier + '/export?key=' + crowdin_project_api_key).read()
+    response = urllib2.urlopen('http://api.crowdin.net/api/project/' + crowdin_identifier + '/export?key=' + crowdin_api_key).read()
     print response
 
 # Download & unzip
-zfobj = zipfile.ZipFile(StringIO(urllib2.urlopen('http://crowdin.net/download/project/' + crowdin_project_identifier + '.zip').read()))
+print 'Download translations'
+zfobj = zipfile.ZipFile(StringIO(urllib2.urlopen('http://crowdin.net/download/project/' + crowdin_identifier + '.zip').read()))
 
 for name in zfobj.namelist():
     uncompressed = zfobj.read(name)
