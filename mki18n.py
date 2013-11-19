@@ -2,8 +2,8 @@
 from StringIO import StringIO
 import urllib2, os, zipfile, pycurl
 
-crowdin_identifier = 'electrum-client'
-crowdin_file_name = 'electrum.po'
+crowdin_identifier = 'electrum'
+crowdin_file_name = 'electrum-client/messages.pot'
 locale_file_name = 'locale/messages.pot'
 
 if os.path.exists('build/crowdin_api_key.txt'):
@@ -38,13 +38,13 @@ print 'Download translations'
 zfobj = zipfile.ZipFile(StringIO(urllib2.urlopen('http://crowdin.net/download/project/' + crowdin_identifier + '.zip').read()))
 
 for name in zfobj.namelist():
-    uncompressed = zfobj.read(name)
     if name.endswith('/'):
         if not os.path.exists(name):
             os.mkdir(name)
-    else:
+    elif name.startswith('electrum-client'):
         print 'Saving',name
-        output = open(name,'w')
+        uncompressed = zfobj.read(name)
+        output = open(name[16:],'w')
         output.write(uncompressed)
         output.close()
 
